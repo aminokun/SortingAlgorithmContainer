@@ -33,17 +33,25 @@ namespace Models
 
         public bool LoadContainer(Container container)
         {
-            bool loadLeft = LeftWeight <= RightWeight;
-
             for (int i = 0; i < Stacks.Count; i++)
             {
-                if (loadLeft && i >= Stacks.Count / 2) break;
-                if (!loadLeft && i < Stacks.Count / 2) continue;
+                // Only load cooled containers in the first stack
+                if (i == 0 && container.Type != ContainerType.Cooled)
+                {
+                    continue;
+                }
+
+                // Only load non-cooled containers in stacks other than the first
+                if (i != 0 && container.Type == ContainerType.Cooled)
+                {
+                    continue;
+                }
 
                 Stack stack = Stacks[i];
+
                 if (stack.LoadContainer(container))
                 {
-                    if (loadLeft) LeftWeight += container.Weight;
+                    if (i < Stacks.Count / 2) LeftWeight += container.Weight;
                     else RightWeight += container.Weight;
 
                     return true;
@@ -52,6 +60,7 @@ namespace Models
 
             return false;
         }
+
         public override string ToString()
         {
             string result = "Row contains:\n";

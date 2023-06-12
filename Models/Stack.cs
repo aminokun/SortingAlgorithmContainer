@@ -46,6 +46,18 @@ namespace Models
             Containers.Add(container);
             return true;
         }
+        public bool TryAddContainer(Container container)
+        {
+            if (CurrentWeight + container.Weight <= MaxWeight)
+            {
+                Containers.Add(container);
+                CurrentWeight += container.Weight;
+                return true;
+            }
+
+            return false;
+        }
+
 
         public override string ToString()
         {

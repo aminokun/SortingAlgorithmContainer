@@ -27,6 +27,12 @@ namespace ContainerLoading
             containers.Add(new Container(ContainerType.Valuable, 15));
             containers.Add(new Container(ContainerType.Valuable, 15));
             containers.Add(new Container(ContainerType.Valuable, 15));
+            containers.Add(new Container(ContainerType.Valuable, 15));
+            containers.Add(new Container(ContainerType.Valuable, 15));
+            containers.Add(new Container(ContainerType.Valuable, 15));
+            containers.Add(new Container(ContainerType.Valuable, 15));
+            containers.Add(new Container(ContainerType.Valuable, 15));
+            containers.Add(new Container(ContainerType.Valuable, 15));
 
             // Create a ship with a specified number of rows and stacks per row
             Ship ship = new Ship(3, 4);

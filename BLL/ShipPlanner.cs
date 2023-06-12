@@ -4,23 +4,87 @@ namespace BLL
 {
     public class ShipPlanner
     {
-        public bool Plan(Ship ship, List<Container> containers)
+        public List<Row> Rows { get; set; }
+        public int CurrentWeight { get; set; }
+        public int LeftWeight { get; set; }
+        public int RightWeight { get; set; }
+        public int MaxWeight { get; set; }
+
+        public ShipPlanner(int numRows, int numStacksPerRow, int maxWeightPerStack, int maxWeight)
         {
-            // Sort the containers by weight, with the heaviest first
+            Rows = new List<Row>();
+            for (int i = 0; i < numRows; i++)
+            {
+                Rows.Add(new Row(numStacksPerRow, maxWeightPerStack));
+            }
+            CurrentWeight = 0;
+            LeftWeight = 0;
+            RightWeight = 0;
+            MaxWeight = maxWeight;
+        }
+
+        public bool LoadContainer(Container container, bool loadLeft)
+        {
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                int stackIndex = loadLeft ? 0 : Rows[i].Stacks.Count - 1;
+
+                if (Rows[i].Stacks[stackIndex].TryAddContainer(container))
+                {
+                    CurrentWeight += container.Weight;
+
+                    if (loadLeft)
+                    {
+                        LeftWeight += container.Weight;
+                    }
+                    else
+                    {
+                        RightWeight += container.Weight;
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool Plan(List<Container> containers)
+        {
             containers = containers.OrderByDescending(c => c.Weight).ToList();
 
-            // Try to load each container onto the ship
-            foreach (Container container in containers)
+            foreach (var container in containers)
             {
-                if (!ship.LoadContainer(container))
+                if (CurrentWeight + container.Weight > MaxWeight)
                 {
-                    // If a container can't be loaded, the planning has failed
+                    return false;
+                }
+
+                bool loadLeft = LeftWeight <= RightWeight;
+
+                if (!LoadContainer(container, loadLeft))
+                {
                     return false;
                 }
             }
 
-            // If we reach here, all containers could be loaded successfully
             return true;
+        }
+
+        public void PrintShipLayout()
+        {
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                Console.WriteLine($"Row {i + 1}:");
+                for (int j = 0; j < Rows[i].Stacks.Count; j++)
+                {
+                    Console.WriteLine($"  Stack {j + 1}:");
+                    for (int k = 0; k < Rows[i].Stacks[j].Containers.Count; k++)
+                    {
+                        Console.WriteLine($"    Level {k + 1}: {Rows[i].Stacks[j].Containers[k].Type} container ({Rows[i].Stacks[j].Containers[k].Weight} tons)");
+                    }
+                }
+            }
         }
     }
 }
