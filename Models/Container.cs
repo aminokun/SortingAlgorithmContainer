@@ -2,29 +2,30 @@
 
 namespace Models
 {
-    // Class to represent a container
-    public class Container
+    public abstract class Container
     {
-        public ContainerType Type { get; set; }
         public int Weight { get; set; }
+        public string Type { get; protected set; } // Add this field
 
-        public Container(ContainerType type, int weight)
+        public Container(int weight, string type)
         {
-            Type = type;
-            Weight = weight;
-        }
-
-        public override string ToString()
-        {
-            return Type.ToString() + " container (" + Weight + " tons)";
+            this.Weight = weight;
+            this.Type = type;
         }
     }
 
-    // Enum to represent the different types of containers
-    public enum ContainerType
+    public class CooledContainer : Container
     {
-        Normal,
-        Valuable,
-        Cooled
+        public CooledContainer(int weight) : base(weight, "Cooled") { } // Set type here
+    }
+
+    public class NormalContainer : Container
+    {
+        public NormalContainer(int weight) : base(weight, "Normal") { } // Set type here
+    }
+
+    public class ValuableContainer : Container
+    {
+        public ValuableContainer(int weight) : base(weight, "Valuable") { } // Set type here
     }
 }

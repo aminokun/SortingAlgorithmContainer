@@ -1,67 +1,61 @@
 ﻿using Models;
+using System.Linq;
 
 namespace Models
 {
     public class Row
     {
         public List<Stack> Stacks { get; set; }
-        public int LeftWeight { get; set; }
-        public int RightWeight { get; set; }
 
-        public Row(int numStacks)
+        public Row(int numOfStacks)
         {
-            Stacks = new List<Stack>();
-
-            for (int i = 0; i < numStacks; i++)
+            this.Stacks = new List<Stack>();
+            for (int i = 0; i < numOfStacks; i++)
             {
-                Stacks.Add(new Stack());
+                this.Stacks.Add(new Stack());
             }
         }
 
-        public bool CanLoadContainer(Container container)
+        public Stack FindSuitableStack(Container container)
         {
-            foreach (Stack stack in Stacks)
+            // Fill the cooled containers only in the first stack of each row
+            if (container is CooledContainer)
             {
-                if (stack.CanLoadContainer(container))
+                if (Stacks[0].CanAdd(container))
                 {
-                    return true;
+                    return Stacks[0];
+                }
+            }
+            else if (container is ValuableContainer)
+            {
+                // Find a suitable stack for valuable containers
+                foreach (var stack in Stacks)
+                {
+                    if (stack.CanAdd(container))
+                    {
+                        return stack;
+                    }
+                }
+            }
+            else
+            {
+                // Fill the last stack with normal containers until it has a similar weight to the first stack
+                if (Stacks.Last().CurrentWeight() < Stacks[0].CurrentWeight() && Stacks.Last().CanAdd(container))
+                {
+                    return Stacks.Last();
+                }
+
+                // Put a normal container in each stack from the second stack until the last stack
+                for (int i = 1; i < Stacks.Count - 1; i++)
+                {
+                    if (Stacks[i].CanAdd(container))
+                    {
+                        return Stacks[i];
+                    }
                 }
             }
 
-            return false;
-        }
-
-        public bool LoadContainer(Container container)
-        {
-            bool loadLeft = LeftWeight <= RightWeight;
-
-            for (int i = 0; i < Stacks.Count; i++)
-            {
-                if (loadLeft && i >= Stacks.Count / 2) break;
-                if (!loadLeft && i < Stacks.Count / 2) continue;
-
-                Stack stack = Stacks[i];
-                if (stack.LoadContainer(container))
-                {
-                    if (loadLeft) LeftWeight += container.Weight;
-                    else RightWeight += container.Weight;
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        public override string ToString()
-        {
-            string result = "Row contains:\n";
-
-            for (int i = 0; i < Stacks.Count; i++)
-            {
-                result += "  Stack " + (i + 1) + ":\n" + Stacks[i].ToString() + "\n";
-            }
-
-            return result;
+            return null; // No suitable stack found
         }
     }
 }
